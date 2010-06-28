@@ -1,0 +1,20 @@
+SpeedTest-KML README
+====================
+
+Convert one or more SpeedTest CSV files to a KML file for use on Google
+Maps.
+
+Usage
+=====
+Examples:
+
+  # convert an input csv file named "input.csv" to "output.kml"
+  speedtest-kml input.csv > output.kml
+
+  # merge two speedtest csv files and export a KML file named "data.kml"
+  speedtest-kml speedtestdata-1.csv speedtestdata-2.csv > data.kml
+
+About the Author
+================
+Paul Duncan <pabs@pablotron.org>
+http://pablotron.org/

@@ -4,6 +4,21 @@ require 'pp'
 require 'csv'
 
 module SpeedTest
+  VERSION = '0.1.0'
+
+
+  USAGE = <<-END_USAGE
+#$0 - convert SpeedTest CSV files to KML.
+
+Examples:
+
+  # convert an input csv file named "in.csv" to "out.kml"
+  #$0 in.csv > out.kml
+
+  # merge two speedtest csv files and export a KML file named "data.kml"
+  #$0 data-1.csv data-2.csv > all.kml
+END_USAGE
+
   module Util
     def self.template(str, args = nil) 
       str.gsub(/\{(\w+)\}/mx) { args[$1] || '' }
@@ -138,23 +153,15 @@ module SpeedTest
     end
   end
 
-  USAGE = <<-END_USAGE
-#$0 - convert SpeedTest CSV files to KML.
-
-Examples:
-
-  # convert an input csv file named "in.csv" to "out.kml"
-  #$0 in.csv > out.kml
-
-  # merge two speedtest csv files and export a KML file named "data.kml"
-  #$0 data-1.csv data-2.csv > all.kml
-END_USAGE
-end
-
-if __FILE__ == $0
-  if ARGV.size == 0 || ARGV.first.match(/-h|--help/)
-    puts SpeedTest::USAGE
-  else
-    puts SpeedTest::Converter.run(ARGV)
+  def self.run_cli(args)
+    if args.size == 0 || args.first.match(/-h|--help/)
+      # print usage
+      $stderr.puts SpeedTest::USAGE
+    else
+      # convert file
+      puts SpeedTest::Converter.run(args)
+    end
   end
 end
+
+SpeedTest.run_cli(ARGV) if __FILE__ == $0

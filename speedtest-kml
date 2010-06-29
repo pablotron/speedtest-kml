@@ -125,8 +125,8 @@ END_USAGE
 
     def to_s
       template('kml', {
-        'name'        => h(@name),
-        'description' => h(@desc),
+        'name'        => Util.h(@name),
+        'description' => Util.h(@desc),
         'body'        => @locs.map { |loc| template('loc', loc) }.join
       })
     end
@@ -135,28 +135,6 @@ END_USAGE
 
     def template(key, args = nil) 
       Util.template(TEMPLATES[key], args)
-    end
-  end
-
-  #
-  # SpeedTest CSV to KML converter.
-  #
-  class Converter
-    def self.run(args)
-      new.run(args)
-    end
-
-    def run(paths)
-      @csv ||= CSVReader.new
-      kml = KML.new
-
-      # read/convert input files
-      paths.each do |path|
-        @csv.run(path) { |loc| kml << loc }
-      end
-
-      # return result
-      kml.to_s
     end
   end
 
@@ -183,7 +161,7 @@ END_USAGE
   end
 
   #
-  # SpeedTest CSV to KML converter.
+  # Generate KML file with name and description
   #
   class NamedConverter
     def self.run(name, desc, paths)

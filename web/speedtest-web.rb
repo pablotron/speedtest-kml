@@ -69,16 +69,15 @@ module SpeedTest
     end
 
     post '/' do
-      # get name and data
-      name = params[:csv][:name].gsub(/\.[^.]+$/, '') + '.kml'
-      data = params[:csv][:tempfile].read
+      # get output kml name
+      kml_name = params[:csv][:filename].gsub(/\.[^.]+$/, '') + '.kml'
 
-      attachment   name
+      attachment   kml_name
       content_type 'application/vnd.google-earth.kml+xml'
-      body         SpeedTest::Converter.run(
-        params[:name] || '',
-        params[:desc] || '',
-        params[:csv][:tempfile].read
+      body         SpeedTest::NamedConverter.run(
+        params[:name],
+        params[:desc],
+        params[:csv][:tempfile].path
       )
     end
   end

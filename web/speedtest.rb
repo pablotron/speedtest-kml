@@ -43,10 +43,10 @@ END_USAGE
       ),
     }
 
-    def run(path, &block)
+    def run(data, &block)
       header = true
 
-      CSV.parse(File.read(path)) do |row|
+      CSV.parse(data) do |row|
         if header
           @cols = row.map { |v| v.downcase }
           header = false
@@ -135,33 +135,19 @@ END_USAGE
   # SpeedTest CSV to KML converter.
   #
   class Converter
-    def self.run(args)
-      new.run(args)
+    def self.run(data)
+      new.run(data)
     end
 
-    def run(paths)
+    def run(data)
       @csv ||= CSVReader.new
       kml = KML.new
 
-      # read/convert input files
-      paths.each do |path|
-        @csv.run(path) { |loc| kml << loc }
-      end
+      # read/convert input file
+      @csv.run(data) { |loc| kml << loc }
 
       # return result
       kml.to_s
     end
   end
-
-  def self.run_cli(args)
-    if args.size == 0 || args.first.match(/-h|--help/)
-      # print usage
-      $stderr.puts SpeedTest::USAGE
-    else
-      # convert file
-      puts SpeedTest::Converter.run(args)
-    end
-  end
 end
-
-SpeedTest.run_cli(ARGV) if __FILE__ == $0

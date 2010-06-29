@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 
-require 'pp'
 require 'csv'
 
 module SpeedTest
@@ -25,7 +24,7 @@ END_USAGE
     end
 
     def self.h(s)
-      s.gsub(/&/, '&amp;').gsub(/</, '&lt;').gsub(/>/, '&gt;').gsub(/"/, '&quot;')
+      (s || '').gsub(/&/, '&amp;').gsub(/</, '&lt;').gsub(/>/, '&gt;').gsub(/"/, '&quot;')
     end
 
     def self.hh(h)
@@ -102,12 +101,18 @@ END_USAGE
       'kml' => %(
         <?xml version="1.0" encoding="UTF-8"?>
         <kml xmlns="http://www.opengis.net/kml/2.0">
-          <Document>{body}</Document>
+          <Document>
+            <name>{name}</name>
+            <description>{description}</description>
+
+            {body}
+          </Document>
         </kml>
       ).strip,
     }
 
-    def initialize
+    def initialize(name = nil, desc = nil)
+      @name, @description = name, desc
       @locs = []
     end
 
@@ -120,7 +125,9 @@ END_USAGE
 
     def to_s
       template('kml', {
-        'body' => @locs.map { |loc| template('loc', loc) }.join
+        'name'        => h(@name),
+        'description' => h(@desc),
+        'body'        => @locs.map { |loc| template('loc', loc) }.join
       })
     end
 
@@ -142,6 +149,54 @@ END_USAGE
     def run(paths)
       @csv ||= CSVReader.new
       kml = KML.new
+
+      # read/convert input files
+      paths.each do |path|
+        @csv.run(path) { |loc| kml << loc }
+      end
+
+      # return result
+      kml.to_s
+    end
+  end
+
+  #
+  # SpeedTest CSV to KML converter.
+  #
+  class Converter
+    def self.run(paths)
+      new.run(paths)
+    end
+
+    def run(paths)
+      @csv ||= CSVReader.new
+      kml = KML.new
+
+      # read/convert input files
+      paths.each do |path|
+        @csv.run(path) { |loc| kml << loc }
+      end
+
+      # return result
+      kml.to_s
+    end
+  end
+
+  #
+  # SpeedTest CSV to KML converter.
+  #
+  class NamedConverter
+    def self.run(name, desc, paths)
+      new(name, desc).run(paths)
+    end
+
+    def initialize(name, desc)
+      @name, @desc = name, desc
+    end
+
+    def run(paths)
+      @csv ||= CSVReader.new
+      kml = KML.new(@name, @desc)
 
       # read/convert input files
       paths.each do |path|
